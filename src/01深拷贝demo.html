@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+</head>
+<body>
+  
+</body>
+</html>
+
+<script>
+    let obj1 =  {
+        name:'王青松',
+        age:15,
+        hobby:{
+            song:'唱',
+            dance:'跳',
+            rap:[1,2,3]
+        }
+    }
+    function deepClone(obj) {
+        // 判断传入的是数组还是对象
+        let objClone = Array.isArray(obj) ?  [] : {}
+        // 传入不为空且是对象
+        if(obj && typeof obj === 'object') {
+            // 遍历对象，即外层遍历
+            for(key in obj) {
+                // console.log(typeof obj[key]);
+                // 判断是否有自身（非继承）指定名称的属性
+                if(obj.hasOwnProperty(key)) { 
+                    // 判断是否为对象
+                    if(obj[key] && typeof obj[key] === 'object') {
+                        // 是对象再执行递归
+                        objClone[key] = deepClone(obj[key])
+                    } else {
+                        // 否则直接复制
+                        objClone[key] = obj[key]
+                    }
+                }
+            }
+        }
+        return objClone
+    }
+    let obj2 = deepClone(obj1)
+    obj2.hobby.dance = '跳舞呀'
+    console.log(obj1,obj2);
+</script>

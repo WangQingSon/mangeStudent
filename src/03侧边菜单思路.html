@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+
+<style>
+    /* 
+        1、前端定义好allRoutes，根据后台接口返还的路由数据，定义不同的层级关系
+            (1)、先引入对应的子组件
+                allRoutes = [
+                    {
+                        path:'xx',
+                        name:'xx',
+                        component:xx,
+                        meta:{
+                            name:'xx',
+                            icon-font:'xx',
+                        },
+                        children:[
+                            {
+                                path:'xx',
+                                name:'xx',
+                                component:xx,
+                            }
+                            meta:{
+                                xxx
+                            },
+                        ]
+                    }
+                ]
+            (2)、导出allRoutes,在router文件中任意一个组件中的children:allRoutes,此时它就是这个组件的子路由
+            (3)、在页面要展示的部分添加<router-view><router-view/>
+            (4)、地址栏输入对应的path测试是否能打开对应路由
+        
+        2、在router文件里面只留一个登陆路由,侧边栏菜单的根路由动态获取
+
+        3、定义dynamicRoutes来进行按需展示路由
+            (1)、引入home组件
+            (2)、定义dynamicRoutes
+                const dynamicRoutes = [
+                    {
+                        path:'home',
+                        component:home,
+                        children:[]
+                    }
+                ]
+            (3)、导出dynamicRoutes
+
+        4、定义递归函数
+                                用户定义    后端返回
+            const recRoutes = (allRoutes,menuList) {
+                // 定义数组,存放用户最终展示的路由
+                let userRoutes = []
+                // 遍历allRoutes
+                allRoutes.forEach(  item => { //item是allRoutes第一层子路由
+                    //遍历后端返回菜单数据
+                    menuList.forEach( val => {
+                        //进行对比名字是否一样
+                        if(item.meta.name == val.name {
+                            // 如果一致在判断是否有第二层子路由
+                            (if val.children && val.children.length > 0) {
+                                // 进行递归
+                                recRoutes (item.children,val.children)
+                            }
+                            // 将筛选后的item添加到用户数组
+                            userRoutes.push(item)
+                        })
+                    })
+                })
+                return       userRoutes
+            }
+        
+        5、在vuex中
+            (1)、引入getMenuList、allRoutes、dynamicRoutes、recRoutes
+            (2)、在state中定义menuList来存放处理后的菜单数据
+            (3)、在actions请求数据并处理
+                 //侧边菜单路由获取
+                async FETCH_MENULIST ({commit}) {
+                    let result = await getMenuList ()
+                    // 调用递归函数得到符合的路由
+                    let userMenu = recRoutes(allRoutes,result.menuList)
+                        // 将数据提交到mutations
+                        commit('SET_MENULIST',userMenu)
+                },
+            (4)、在mutations中处理state数据
+                SET_MENULIST(state,payload) {
+                    // 将获取的菜单数据赋值到state中
+                    state.menuList = payload
+                    // 找出路径为'/'的路由，因为从后台获取的菜单列表是它的子路由
+                    let target = dynamicRoutes.find( item => item.path === '/')
+                    // 给目标路由添加子路由
+                    target.children = [...state.menuList]
+                    // 动态添加到路由上(核心语法router.addRoutes())
+                    router.addRoutes(dynamicRoutes)
+                },
+
+        6、在页面中引入辅助函数...mapState({'menuList'})
+
+        7、安装侧边栏菜单插件
+           (1)、npm i qf-sub-menu -S
+           (2)、在main.js引入
+           (3)、注册到全局组件 Vue.use(qfSubMenu)
+
+        8、在页面中的<el-menu><el-menu/>组件中写入插件
+            <qf-sub-menu :sideMenu='menuList'> </qf-sub-menu>   //:sideMenu是写死的
+
+        
+        细节注意：
+            々1、在路由前置钩子判断有token后,我们要判断vuex中menuList是否为空，如果空要触发一次action中
+        获取菜单数据的函数store.dispatch('FETCH_MENULIST').then ( next({path:to.path}))
+            々2、假如第一次用管理员身份然后退出,再用普通用户登录会出现刷新后才会更新菜单权限问题,解决方法
+        是我们在退出时window.location.rolad()刷新一下页面(相应拦截那也有一处)
+            々3、在地址栏输入对应路由时,不触发对应菜单激活1的样式，解决方法是在<el-menu :default='$route.path'>
+
+
+        
+        关于面包屑的实现与处理
+                1、引入面包屑组件：el-breadcrumb-item
+                2、我们在路由后置钩子(点击完菜单触发)处理面包屑
+                    (1)、
+            
+    
+    
+    
+    
+    */
+</style>
