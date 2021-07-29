@@ -20,13 +20,26 @@
             <el-button @click="resetForm('ruleForm')">重置</el-button>
           </el-form-item>
         </el-form>
+        <div class="switchLoginMethod">
+           <svg class="switchIcon" aria-hidden="true" @click="switchMethod">
+                    <use :xlink:href="isQrCode==true ? '#icon-erweima' : '#icon-diannao'"></use>
+           </svg>
+           
+        </div>
+      </div>
+      <div class="qrCode" v-show="isQrCode">
+             <img :src="qrImgurl" alt="" >
+             <h3>请使用微信扫码登录</h3>
       </div>
   </div>
 </template>
 
 <script>
-import  {getWeath,postLogin,getCaptch,checkCaptch,getMenuList}  from  "@/api/home"
-
+import  {getWeath,postLogin,getCaptch,checkCaptch,getMenuList,getQrCode,getWechatLogin}  from  "@/api/home"
+//引入二维码生成插件
+import qr from "qrcode";
+//引入socket.io客户端
+import io from "socket.io-client";
 export default {
   name: "login",
   components: {
@@ -54,13 +67,19 @@ export default {
         }
       };
       return {
+        // 控制二维码是否显示
+        isQrCode:false,
+        // 二维码
+        qrImgurl:'',
         // 验证码
         captchaRes:'',
+        // 表单数据
         ruleForm: {
           username: '',
           password: '',
           captcha: ''
         },
+        // 表单校验
         rules: {
           username: [
             { validator: validateUsername, trigger: 'blur' }
@@ -75,6 +94,14 @@ export default {
       };
   },
   methods:{
+    // 控制二维码显示
+    switchMethod () {
+       if(this.isQrCode == false) {
+         this.isQrCode = true
+       } else {
+         this.isQrCode = false
+       }
+    },
     // 重置
     resetForm(formName) {
         this.$refs[formName].resetFields();
@@ -96,6 +123,29 @@ export default {
       getCaptch().then( res => {
         this.captchaRes = res.img
       })
+    },
+    // 获取二维码
+    getQrCodeM () {
+      getQrCode().then( res => {
+        let qrUrl = res.scanCodeUrl
+        qr.toDataURL(qrUrl,(err,imgUrl) => {
+          if(err) throw err;
+          this.qrImgurl = imgUrl
+        })
+      })
+    },
+    // 微信登入接口
+    getWechatLoginM (wechatCode) {
+       getWechatLogin (wechatCode).then( res => {
+         console.log(res);
+         if(res.token) {
+           localStorage.setItem('qf_token',res.token)
+           localStorage.setItem('qf_nickName',res.userInfo.nickname)
+           sessionStorage.setItem('permission',res.permission.buttons)
+           this.$store.commit('SET_USERINFO',res.userInfo)
+           this.$router.push('/Welcome')
+         } 
+       })
     },
     // 校验验证码
     checkCaptchM () {
@@ -152,13 +202,31 @@ export default {
       if(this.ruleForm.captcha == '' || this.ruleForm.username == '' || this.ruleForm.password == '') {return this.$message({message:'一项都不能为空哦~'},1000)}
       this.checkCaptchM ()
       this.postLoginM()
-      
+    }
+  },
+  watch:{
+    isQrCode(nval) {
+      if(nval === true) { // 如果是扫码登录
+        let socket = io('ws://chst.vip')
+        // 连接成功触发
+        socket.on('connect',() => {
+          console.log('连接成功');
+          // 获取二维码
+          this.getQrCodeM()
+        })
+        // 扫码成功时触发
+        // console.log(socket);
+        socket.on('scancodeSuccess',(data) => {
+          let wechatCode = data.wechatCode
+          this.getWechatLoginM(wechatCode)
+        })
+      }
     }
   },
   mounted () {
     // this.getWeathM()
     this.getCaptchM()
-    
+    this.getQrCodeM()
     // this.checkCaptchM()
   }
 
@@ -168,7 +236,7 @@ export default {
 <style scoped>
    .login {
      height: 100%;
-     /* background:url('../../assets/imgs/真实伤害_亚索.jpg'); */
+     background:url('../../assets/imgs/真实伤害_亚索.jpg');
      position: relative;
    }
    .form {
@@ -180,6 +248,37 @@ export default {
      box-shadow: 10px 10px 5px #000;
      background: rgba(0, 0, 0, 0.7);
     
+   }
+   .form .switchLoginMethod {
+     position: absolute;
+     z-index: 10;
+     top: 0px;
+     right: 0px;
+   }
+   .form .switchLoginMethod .switchIcon {
+     cursor: pointer;
+     width: 50px;
+     height: 50px;
+   }
+   .qrCode {
+     width: 600px;
+     height: 400px;
+     position: absolute;
+     right: 3%;
+     top: 25%;
+     background:url('../../../src/assets/imgs/iu.jpg') no-repeat; 
+     background-size: cover;
+   }
+   .qrCode img {
+     position: absolute;
+     top: 30%;
+     left: 35%;
+     width: 170px;
+     height: 170px;
+   }
+   .qrCode h3 {
+     margin-left: 207px;
+     margin-top: 70px;
    }
     .label {
      color: hotpink;

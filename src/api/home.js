@@ -58,3 +58,11 @@ export function getDeleteStudent(sId) {
 export function postUploadStudentImg(headimgurl) {
     return post({url:'/students/uploadStuAvatar',params:{headimgurl}})
 }
+// 获取二维码接口
+export function getQrCode() {
+    return get({url:'/users/getScancode'})
+}
+// 微信登入的接口 
+export function getWechatLogin(wechatCode) {
+    return get({url:'/users/wechatLogin',params:{wechatCode}})
+}

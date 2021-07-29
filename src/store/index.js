@@ -27,10 +27,8 @@ export default new Vuex.Store({
   mutations: {
     // 获取用户登录信息
     SET_USERINFO(state,payload) {
-      state.userInfo.username = payload.username
-      state.userInfo.nickName = payload.nickname
-      state.userInfo.roleName = payload.roleName
-      state.userInfo.phone = payload.phone
+      console.log(payload);
+      state.userInfo = payload
     },
 
     //面包屑

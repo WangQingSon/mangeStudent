@@ -59,7 +59,7 @@
                         width="300"
                         label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="readStudent(scope.row)" type="primary " v-has="'edit'" size="small" icon="el-icon-view"></el-button>
+                            <el-button @click="readStudent(scope.row)" type="primary "  size="small" icon="el-icon-view"></el-button>
                            <el-button @click="editStudent(scope.row)" type="primary " v-has="'edit'"  size="small" icon="el-icon-edit"></el-button>
                            <el-button @click="deleteStudent(scope.row.sId)" type="danger"  v-has="'delet'" size="small" icon="el-icon-delete"></el-button>
                         </template>
@@ -189,6 +189,7 @@
         },
         // 编辑学员
         editStudent(targetStudent) {
+            // console.log(targetStudent);
             this.editData.editTarget = targetStudent
             this.editData.showEditDialog = true
         },

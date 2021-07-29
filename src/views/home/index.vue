@@ -15,7 +15,11 @@
                         </div>
                     </div>
                     <span>{{cityWea}}</span>
-                    <div :class="cityWea == '晴' && cityWea != undefined ? 'el-icon-sunny' : 'el-icon-cloudy'"></div>
+                    <div :class="cityWea == '晴' && cityWea != undefined ? 'el-icon-sunny' : 'el-icon-cloudy'">
+                        <svg class="svg-zhuce" aria-hidden="true">
+                            <use xlink:href="#icon-zhuce" style="cursor:pointer" v-if="nickName == '管理员' ? true : false" @click="openDialog()"></use>
+                        </svg>
+                    </div>
                 </div>
                 <div class="header_btn"><span @click="ctrlOpenClose" :class="isCollapse == false ? 'el-icon-s-unfold' :'el-icon-s-fold'"></span></div>
                 <div class="head_center">
@@ -23,11 +27,13 @@
                 </div>
                 <div class="head_right">
                     <div class="zhuce">
-                        <span class="iconfont icon-zhuce" style="cursor:pointer" v-if="nickName == '管理员' ? true : false" @click="openDialog()"></span>
+                        <svg class="svg-zhuce" aria-hidden="true">
+                            <use xlink:href="#icon-zhuce" style="cursor:pointer" v-if="nickName == '管理员' ? true : false" @click="openDialog()"></use>
+                        </svg>
                     </div>
                     <div class="userInfo" >
                         <div class="userImg">
-                            <img src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" class="userImg" style="marginTop:10px">
+                            <img :src="userInfo.headimgurl" class="userImg" style="marginTop:10px">
                         </div>
                         <div class="userTitle"><b style="margin:0px">欢迎您：{{nickName}}</b></div>
                         
@@ -250,9 +256,11 @@ export default {
         position: absolute;
         right: 0px;
     }
-    .zhuce .icon-zhuce {
+    .zhuce .svg-zhuce {
+        margin-top: 10px;
         font-size: 38px;
-        color: blue;
+        width: 30px;
+        height: 30px;
     }
     .userInfo  .userImg{
         margin-right: 4px;
